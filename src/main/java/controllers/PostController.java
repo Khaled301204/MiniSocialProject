@@ -1,6 +1,7 @@
 package controllers;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import entities.Comment;
 import entities.Like;
@@ -29,15 +30,20 @@ public class PostController {
     private PostService postService;
 	
 	 @POST
+	 @Path("/createPost")
 	 public Post createPost(Post post) {
-		 return postService.createPost(post);
-	 }
+		    return postService.createPost(post);
+		}
 	 
 	 @GET
-	 @Path("/{id}")
-	 public Post getPostById(@PathParam("id") int id) {
-	        return postService.getPostById(id);
-	    }
+	 @Path("/getbyid/{id}")
+	 public Response getPostById(int id) {
+		 Post post = postService.getPostById(id);
+		 if (post == null) {
+		      return Response.status(Response.Status.NOT_FOUND).build();
+		    }
+		    return Response.ok(post).build();	    
+		    }
 	 
 	 @GET
 	 public List<Post> getAllPosts() {

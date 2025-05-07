@@ -3,9 +3,9 @@ package entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,7 +19,7 @@ public class Post {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column
-	int id;
+	private int id;
 	
 	@Column
 	@NotNull
@@ -28,7 +28,7 @@ public class Post {
 	@Column
 	private String imageUrl;
 
-	@ManyToOne(cascade=CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id",referencedColumnName  = "id" )
 	private User user;
 	 
@@ -38,7 +38,9 @@ public class Post {
 	@OneToMany(mappedBy = "post")
 	private List<Like> like = new ArrayList<Like>();
 	 
-	 
+	 public Post() {
+		 
+	 }
 	public int getId() { 
 		return id; 
 	}

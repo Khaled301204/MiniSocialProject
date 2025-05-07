@@ -31,6 +31,10 @@ public class Comment {
 	@JoinColumn(name = "user_id",referencedColumnName = "id")
 	private User user;
 	
+	public Comment() {
+		
+	}
+	
 	public int getId() { 
 		return id; 
 	}

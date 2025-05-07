@@ -48,6 +48,10 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Like> like= new ArrayList<Like>();
 	
+	public User() {
+		
+	}
+	
 	
 	public int getId() {
 		return id;

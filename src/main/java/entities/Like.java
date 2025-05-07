@@ -25,6 +25,11 @@ public class Like {
 	@JoinColumn(name = "user_id",referencedColumnName = "id")
 	private User user;
 	
+	
+	public Like() {
+		
+	}
+	
 	public int getId() { 
 		return id; 
 	}

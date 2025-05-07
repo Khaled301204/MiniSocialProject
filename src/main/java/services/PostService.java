@@ -24,7 +24,6 @@ public class PostService {
 	}
 
 
-	
 	public Post getPostById(int id) {
         return em.find(Post.class, id);
     }
