@@ -8,7 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Email;
 
@@ -48,11 +50,15 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Like> like= new ArrayList<Like>();
 	
+//	@ManyToMany(mappedBy = "user")
+//	private List<Group> groups = new ArrayList<Group>();
+	
+//	@OneToOne(mappedBy = "user")
+//	private Group group;
+	
 	public User() {
 		
 	}
-	
-	
 	public int getId() {
 		return id;
 	}

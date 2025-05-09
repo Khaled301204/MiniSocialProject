@@ -24,9 +24,14 @@ public class UserController {
     private UserService userService;
 
     @POST
-    @Path("addUser")
-    public User addUser(User user) {
-        return userService.addUser(user);
+    @Path("register")
+    public Response addUser(User user) {
+        if(userService.addUser(user)!=null) {
+        	return Response.ok("User registered successfully.").build();
+        }
+        else {
+        	return Response.status(400).build();
+        }
     }
 
     @GET
@@ -42,7 +47,7 @@ public class UserController {
     }
 
     @PUT
-    @Path("updateUser/{id}")
+    @Path("{id}/update")
     public User updateUser(@PathParam("id") int id, User userData) {
         return userService.updateUser(id, userData);
     }
