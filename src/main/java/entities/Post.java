@@ -3,6 +3,7 @@ package entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,13 +29,13 @@ public class Post {
 	private String imageUrl;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id",referencedColumnName  = "id" )
+	@JoinColumn(name = "user_id")
 	private User user;
 	 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
 	private List<Comment> comment = new ArrayList<Comment>();
 	
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
 	private List<Like> like = new ArrayList<Like>();
 	 
 	 public Post() {

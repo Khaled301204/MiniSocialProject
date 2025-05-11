@@ -26,7 +26,7 @@ public class UserController {
     @POST
     @Path("register")
     public Response addUser(User user) {
-        if(userService.addUser(user)!=null) {
+        if(userService.registerUser(user)!=null) {
         	return Response.ok("User registered successfully.").build();
         }
         else {

@@ -1,6 +1,5 @@
 package entities;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,11 +16,11 @@ public class Like {
 	@Column
     private int id;
 	
-	@ManyToOne(cascade=CascadeType.ALL)
+	@ManyToOne
 	@JoinColumn(name = "post_id",referencedColumnName = "id")
 	private Post post;
 
-	@ManyToOne(cascade=CascadeType.ALL)
+	@ManyToOne
 	@JoinColumn(name = "user_id",referencedColumnName = "id")
 	private User user;
 	

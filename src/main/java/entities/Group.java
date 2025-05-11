@@ -1,15 +1,16 @@
 package entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
@@ -21,52 +22,59 @@ public class Group {
 	
 	@Column
 	@NotNull
-	private String Name;
+	private String name;
 	
 	@Column
-	private String Description;
+	private String description;
 	
 	@Column
-	private String groupType;
+	private boolean isOpen;
 	
 	@OneToOne
 	@JoinColumn(name = "admin_id")
-	private User Admin;
+	private User admin;
 	
-	@ManyToMany
-	@JoinTable(name="UserXGroup",
-	joinColumns = @JoinColumn(name = "member_id"),
-	inverseJoinColumns = @JoinColumn(name = "group_id"))
-	private List<User> members;
+	@OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    private List<GroupMembership> members = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    private List<GroupPost> posts = new ArrayList<>();
+
 	
 	public int getId() {
 		return id;
 	}
 	
 	public void setName( String name) {
-		this.Name = name;
-	}
-	public String getName() {
-		return this.Name;
-	}
-	public void setDescription( String description) {
-		this.Description = description;
-	}
-	public String getDescription() {
-		return this.Description;
-	}
-	public void setAdmin(User admin) {
-		this.Admin = admin;
-	}
-	public User getAdmin() {
-		return Admin;
-	}
-	public void setGroupType(String type) {
-		this.groupType = type;
+		this.name = name;
 	}
 	
-	public String getGroupType() {
-		return groupType;
+	public String getName() {
+		return this.name;
+	}
+	
+	public void setDescription( String description) {
+		this.description = description;
+	}
+	
+	public String getDescription() {
+		return this.description;
+	}
+	
+	public void setAdmin(User admin) {
+		this.admin = admin;
+	}
+	
+	public User getAdmin() {
+		return admin;
+	}
+	
+	public void setOpen(boolean isOpen) {
+		this.isOpen = isOpen;
+	}
+	
+	public boolean isOpen() {
+		return isOpen;
 	}
 	
 }

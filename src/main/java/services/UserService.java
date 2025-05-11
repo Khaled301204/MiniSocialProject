@@ -2,6 +2,7 @@ package services;
 
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -12,6 +13,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.ws.rs.WebApplicationException;
 
+import entities.FriendRequest;
 import entities.User;
 
 @Stateless
@@ -20,7 +22,7 @@ public class UserService {
     @PersistenceContext(unitName = "hello")
     private EntityManager em;
 
-    public User addUser(User user) {
+    public User registerUser(User user) {
     	if (isEmailTaken(user.getEmail())) {
             throw new WebApplicationException("Email already in use", 400);
         }
@@ -29,8 +31,8 @@ public class UserService {
     }
     
     public boolean isEmailTaken(String email) {
-        return !em.createQuery("SELECT u FROM User u WHERE u.Email = :Email", User.class)
-                  .setParameter("Email", email)
+        return !em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                  .setParameter("email", email)
                   .getResultList().isEmpty();
     }
     
@@ -64,5 +66,15 @@ public class UserService {
         user.setPassword(userData.getPassword());
         user.setRole(userData.getRole());
         return em.merge(user);
+    }
+    
+    public List<User> getFriends(User user) {
+        // returns users whom this user is friends with
+        List<User> friends = new ArrayList<>();
+        for (FriendRequest fr : user.getSentRequests())
+            if ("ACCEPTED".equals(fr.getStatus())) friends.add(fr.getReceiver());
+        for (FriendRequest fr : user.getReceivedRequests())
+            if ("ACCEPTED".equals(fr.getStatus())) friends.add(fr.getSender());
+        return friends;
     }
 }

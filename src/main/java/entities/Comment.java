@@ -1,6 +1,5 @@
 package entities;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,12 +22,12 @@ public class Comment {
 	@NotNull
 	private String content;
 	
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "post_id",referencedColumnName = "id")
+	@ManyToOne()
+	@JoinColumn(name = "post_id")
 	private Post post;
 
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "user_id",referencedColumnName = "id")
+	@ManyToOne()
+	@JoinColumn(name = "user_id")
 	private User user;
 	
 	public Comment() {

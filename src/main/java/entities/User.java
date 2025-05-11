@@ -3,39 +3,35 @@ package entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Email;
 
 @Entity
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
 	private int id;
 	
 	@Column
 	@NotBlank
-	private String Name;
+	private String name;
 	
 	@Column
 	@NotBlank
-	@Email
-	private String Email;
+	private String email;
 	
 	@Column
-	private String Bio;
+	private String bio;
 	
 	@Column
 	@NotBlank
-	private String Password;
+	private String password;
 	
 	@Column
 	@NotBlank
@@ -50,11 +46,17 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Like> like= new ArrayList<Like>();
 	
-//	@ManyToMany(mappedBy = "user")
-//	private List<Group> groups = new ArrayList<Group>();
+	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+	private List<FriendRequest> sentRequests = new ArrayList<>();
+
+	@OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+	private List<FriendRequest> receivedRequests = new ArrayList<>();
 	
-//	@OneToOne(mappedBy = "user")
-//	private Group group;
+	@OneToMany(mappedBy = "admin")
+	private List<Group> createdGroups = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user")
+	private List<GroupMembership> groupMemberships = new ArrayList<>();
 	
 	public User() {
 		
@@ -63,28 +65,28 @@ public class User {
 		return id;
 	}
 	public void setName(String Name) {
-		this.Name = Name;
+		this.name = Name;
 	}
 	public String getName() {
-		return Name;
+		return name;
 	}
 	public void setEmail(String email) {
-		this.Email = email;
+		this.email = email;
 	}
 	public String getEmail() {
-		return Email;
+		return email;
 	}
 	public void setBio(String bio) {
-		this.Bio = bio;
+		this.bio = bio;
 	}
 	public String getBio() {
-		return Bio;
+		return bio;
 	}
 	public void setPassword(String password) {
-		this.Password = password;
+		this.password = password;
 	}
 	public String getPassword() {
-		return Password;
+		return password;
 	}
 	public void setRole(String role) {
 		this.role = role;
@@ -92,4 +94,17 @@ public class User {
 	public String getRole() {
 		return role;
 	}
+	public void setSentRequests(List <FriendRequest> sentRequests) {
+		this.sentRequests = sentRequests;
+	}
+	public List<FriendRequest> getSentRequests() {
+		return sentRequests;
+	}
+	public void setReceivedRequests(List <FriendRequest> receivedRequests) {
+		this.receivedRequests = receivedRequests;
+	}
+	public List<FriendRequest> getReceivedRequests() {
+		return receivedRequests;
+	}
+	
 }
