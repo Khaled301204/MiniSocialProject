@@ -3,7 +3,9 @@ package services;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -38,9 +40,9 @@ public class UserService {
     
     public User login(String email, String password) {
         try {
-            return em.createQuery("SELECT u FROM User u WHERE u.Email = :Email AND u.Password = :Password",User.class)
-                    .setParameter("Email", email)
-                    .setParameter("Password", password) 
+            return em.createQuery("SELECT u FROM User u WHERE u.email = :email AND u.password = :password",User.class)
+                    .setParameter("email", email)
+                    .setParameter("password", password) 
                     .getSingleResult();
         } catch (NoResultException e) {
             throw new WebApplicationException("Invalid email or password", 401);
@@ -50,12 +52,39 @@ public class UserService {
     public User getUserById(int id) {
         return em.find(User.class, id);
     }
+    
+    public Map<String, Object> getUserMapById(int id) {
+        User user = em.find(User.class, id);
+        if (user == null) return null;
 
-    public List<User> getAllUsers() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", user.getId());
+        map.put("name", user.getName());
+        map.put("email", user.getEmail());
+        map.put("password", user.getPassword());
+        map.put("bio", user.getBio());
+        map.put("role", user.getRole());
+        return map;
+    }
+
+    public List<Map<String, Object>> getAllUsersMap() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> cq = cb.createQuery(User.class);
         cq.from(User.class);
-        return em.createQuery(cq).getResultList();
+        List<User> users = em.createQuery(cq).getResultList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (User user : users) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", user.getId());
+            map.put("name", user.getName());
+            map.put("email", user.getEmail());
+            map.put("password", user.getPassword());
+            map.put("bio", user.getBio());
+            map.put("role", user.getRole());
+            result.add(map);
+        }
+        return result;
     }
 
     public User updateUser(int id, User userData) {

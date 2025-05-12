@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -44,16 +45,16 @@ public class User {
 	private List<Comment> comment= new ArrayList<Comment>();
 	
 	@OneToMany(mappedBy = "user")
-	private List<Like> like= new ArrayList<Like>();
+	private List<PostsLike> like= new ArrayList<PostsLike>();
 	
-	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private List<FriendRequest> sentRequests = new ArrayList<>();
 
-	@OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private List<FriendRequest> receivedRequests = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "admin")
-	private List<Group> createdGroups = new ArrayList<>();
+	private List<UserGroup> createdGroups = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
 	private List<GroupMembership> groupMemberships = new ArrayList<>();

@@ -5,7 +5,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import entities.Group;
+import entities.UserGroup;
 import entities.GroupMembership;
 import entities.GroupPost;
 import entities.User;
@@ -15,12 +15,12 @@ import java.util.List;
 @Stateless
 public class GroupService {
 
-	@PersistenceContext
+	@PersistenceContext(unitName = "hello")
     private EntityManager em;
 
     // Create group and add admin as first member
-    public Group createGroup(User admin, String name, String description, boolean isOpen) {
-        Group group = new Group();
+    public UserGroup createGroup(User admin, String name, String description, boolean isOpen) {
+        UserGroup group = new UserGroup();
         group.setName(name);
         group.setDescription(description);
         group.setOpen(isOpen);
@@ -33,13 +33,17 @@ public class GroupService {
         membership.setStatus("MEMBER");
         membership.setRole("ADMIN");
         em.persist(membership);
-
+        
         return group;
+    }
+    
+    public UserGroup getGroupById(int groupId) {
+    	return em.find(UserGroup.class,groupId);
     }
 
     // Request to join a group
     public void requestToJoinGroup(User user, int groupId) {
-        Group group = em.find(Group.class, groupId);
+        UserGroup group = em.find(UserGroup.class, groupId);
         if (group == null)
             throw new IllegalArgumentException("Group not found.");
 
@@ -70,8 +74,8 @@ public class GroupService {
         GroupMembership membership = em.find(GroupMembership.class, membershipId);
         if (membership == null)
             throw new IllegalArgumentException("Membership not found.");
-        Group group = membership.getGroup();
-        if (!group.getAdmin().equals(admin))
+        UserGroup group = membership.getGroup();
+        if (group.getAdmin().getId()!=admin.getId())
             throw new SecurityException("Only admin can approve.");
         membership.setStatus("MEMBER");
         em.merge(membership);
@@ -80,10 +84,10 @@ public class GroupService {
 
     // Remove a member from group (by admin)
     public void removeUserFromGroup(int groupId, int userId, User admin) {
-        Group group = em.find(Group.class, groupId);
+        UserGroup group = em.find(UserGroup.class, groupId);
         if (group == null)
             throw new IllegalArgumentException("Group not found.");
-        if (!group.getAdmin().equals(admin))
+        if (group.getAdmin().getId()!=admin.getId())
             throw new SecurityException("Only admin can remove.");
         TypedQuery<GroupMembership> query = em.createQuery(
             "SELECT m FROM GroupMembership m WHERE m.group = :group AND m.user.id = :userId", GroupMembership.class
@@ -94,13 +98,31 @@ public class GroupService {
             throw new IllegalArgumentException("Membership not found.");
         em.remove(result.get(0));
     }
+    
+    public void leaveGroup(int groupId, int userId) {
+        UserGroup group = em.find(UserGroup.class, groupId);
+        if (group == null)
+            throw new IllegalArgumentException("Group not found.");
+
+        TypedQuery<GroupMembership> query = em.createQuery(
+            "SELECT m FROM GroupMembership m WHERE m.group = :group AND m.user.id = :userId", GroupMembership.class
+        ).setParameter("group", group)
+         .setParameter("userId", userId);
+
+        List<GroupMembership> result = query.getResultList();
+        if (result.isEmpty())
+            throw new IllegalArgumentException("Membership not found.");
+
+        // (Optional safety) Don't let the admin leave if they are the only admin; up to your business rules!
+        em.remove(result.get(0));
+    }
 
     // Promote another user to admin
     public void promoteToAdmin(int groupId, int userId, User admin) {
-        Group group = em.find(Group.class, groupId);
+        UserGroup group = em.find(UserGroup.class, groupId);
         if (group == null)
             throw new IllegalArgumentException("Group not found.");
-        if (!group.getAdmin().equals(admin))
+        if (group.getAdmin().getId()!=admin.getId())
             throw new SecurityException("Only admin can promote.");
         // Transfer admin role
         User newAdmin = em.find(User.class, userId);
@@ -122,7 +144,7 @@ public class GroupService {
 
     // Create a post in the group (only by member)
     public void postInGroup(User user, int groupId, String content, String imageUrl) {
-        Group group = em.find(Group.class, groupId);
+        UserGroup group = em.find(UserGroup.class, groupId);
         if (group == null)
             throw new IllegalArgumentException("Group not found.");
 
@@ -143,9 +165,9 @@ public class GroupService {
     }
 
     // List all groups user is a member of
-    public List<Group> getGroupsForUser(User user) {
+    public List<UserGroup> getGroupsForUser(User user) {
         return em.createQuery(
-            "SELECT m.group FROM GroupMembership m WHERE m.user = :user AND m.status = 'MEMBER'", Group.class
+            "SELECT m.group FROM GroupMembership m WHERE m.user = :user AND m.status = 'MEMBER'", UserGroup.class
         ).setParameter("user", user).getResultList();
     }
 
@@ -158,16 +180,16 @@ public class GroupService {
 
     // Delete group (by admin)
     public void deleteGroup(int groupId, User admin) {
-        Group group = em.find(Group.class, groupId);
+        UserGroup group = em.find(UserGroup.class, groupId);
         if (group == null)
             throw new IllegalArgumentException("Group not found.");
-        if (!group.getAdmin().equals(admin))
+        if (group.getAdmin().getId()!=admin.getId())
             throw new SecurityException("Only admin can delete.");
         em.remove(group);
     }
 
     // Get group by ID
-    public Group find(int id) {
-        return em.find(Group.class, id);
+    public UserGroup find(int id) {
+        return em.find(UserGroup.class, id);
     }
 }

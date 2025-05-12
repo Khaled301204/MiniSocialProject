@@ -39,7 +39,7 @@ public class FriendRequest {
     	this.receiver = receiver;
     }
     public User getReceiver() {
-    	return sender;
+    	return receiver;
     }
     public void setStatus(String status) {
     	this.status = status;

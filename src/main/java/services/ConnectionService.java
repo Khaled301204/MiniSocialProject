@@ -13,7 +13,7 @@ import entities.User;
 @Stateless
 public class ConnectionService {
 	
-	 @PersistenceContext
+	 @PersistenceContext(unitName = "hello")
 	    private EntityManager em;
 
 	    public void sendFriendRequest(int senderId, int receiverId) {

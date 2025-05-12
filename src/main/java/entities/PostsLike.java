@@ -9,7 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class Like {
+public class PostsLike {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +25,7 @@ public class Like {
 	private User user;
 	
 	
-	public Like() {
+	public PostsLike() {
 		
 	}
 	

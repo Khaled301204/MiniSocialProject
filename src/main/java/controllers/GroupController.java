@@ -3,18 +3,18 @@ package controllers;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.websocket.server.PathParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import entities.Group;
+import entities.UserGroup;
 import entities.GroupPost;
 import entities.User;
 import services.GroupService;
@@ -33,10 +33,10 @@ public class GroupController {
 
     @POST
     @Path("/create")
-    public Response createGroup(@QueryParam("creatorId") int creatorId, Group groupInput) {
+    public Response createGroup(@QueryParam("creatorId") int creatorId, UserGroup groupInput) {
         User creator = userService.getUserById(creatorId);
         if (creator == null) return Response.status(Response.Status.NOT_FOUND).entity("Creator not found").build();
-        Group group = groupService.createGroup(creator, groupInput.getName(), groupInput.getDescription(), groupInput.isOpen());
+        UserGroup group = groupService.createGroup(creator, groupInput.getName(), groupInput.getDescription(), groupInput.isOpen());
         return Response.ok(group).build();
     }
 
@@ -47,7 +47,13 @@ public class GroupController {
         if (user == null) return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
         try {
             groupService.requestToJoinGroup(user, groupId);
-            return Response.ok().build();
+            UserGroup group = groupService.getGroupById(groupId);
+            if(!group.isOpen()) {
+            	return Response.ok("Request pending").build();
+            }
+            else {
+            	return Response.ok("Joined the group successfully").build();
+            }
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
@@ -57,8 +63,20 @@ public class GroupController {
     @Path("/{groupId}/leave")
     public Response leaveGroup(@PathParam("groupId") int groupId, @QueryParam("userId") int userId) {
         try {
-            groupService.removeUserFromGroup(groupId, userId, userService.getUserById(userId)); // user can remove themselves
-            return Response.ok().build();
+            groupService.leaveGroup(groupId, userId);
+            return Response.ok("left the group").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+    
+    @POST
+    @Path("/{groupId}/remove")
+    public Response removeMember(@PathParam("groupId") int groupId, @QueryParam("adminId") int adminId, @QueryParam("memberId") int memberId) {
+        try {
+            User admin = userService.getUserById(adminId);
+            groupService.removeUserFromGroup(groupId, memberId, admin);
+            return Response.ok("member removed").build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
@@ -71,7 +89,7 @@ public class GroupController {
         if (admin == null) return Response.status(Response.Status.NOT_FOUND).entity("Admin not found").build();
         try {
             groupService.approveMembership(membershipId, admin);
-            return Response.ok().build();
+            return Response.ok("request approved").build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
@@ -84,7 +102,7 @@ public class GroupController {
         if (admin == null) return Response.status(Response.Status.NOT_FOUND).entity("Admin not found").build();
         try {
             groupService.promoteToAdmin(groupId, userId, admin);
-            return Response.ok().build();
+            return Response.ok("member promoted").build();
         } catch (Exception e) {
             return Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build();
         }
@@ -97,9 +115,23 @@ public class GroupController {
         if (admin == null) return Response.status(Response.Status.UNAUTHORIZED).entity("User not found").build();
         try {
             groupService.deleteGroup(groupId, admin);
-            return Response.ok().build();
+            return Response.ok("Group deleted").build();
         } catch (Exception e) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
+        }
+    }
+    
+    @POST
+    @Path("/{groupId}/posts")
+    public Response postInGroup(@PathParam("groupId") int groupId,@QueryParam("userId") int userId,GroupPost postInput) {
+        User user = userService.getUserById(userId);
+        if (user == null)
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+        try {
+            groupService.postInGroup(user, groupId, postInput.getContent(), postInput.getImageURL());
+            return Response.ok("Posted in Group").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
 

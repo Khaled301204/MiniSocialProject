@@ -1,5 +1,6 @@
 package controllers;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -36,20 +37,20 @@ public class UserController {
 
     @GET
     @Path("getUser/{id}")
-    public User getUser(@PathParam("id") int id) {
-        return userService.getUserById(id);
+    public Map<String, Object> getUser(@PathParam("id") int id) {
+        return userService.getUserMapById(id);
     }
 
     @GET
-    @Path("getAllUsers")
-    public List<User> getUsers() {
-        return userService.getAllUsers();
+    @Path("/all")
+    public List<Map<String, Object>> getAllUsers() {
+        return userService.getAllUsersMap();
     }
 
     @PUT
     @Path("{id}/update")
-    public User updateUser(@PathParam("id") int id, User userData) {
-        return userService.updateUser(id, userData);
+    public Response updateUser(@PathParam("id") int id, User userData) {
+        return Response.ok("user updated").build();
     }
     
     @POST

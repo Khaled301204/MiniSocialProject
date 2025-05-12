@@ -8,14 +8,14 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import entities.Comment;
-import entities.Like;
+import entities.PostsLike;
 import entities.Post;
 import entities.User;
 
 @Stateless
 public class PostService {
 	
-	@PersistenceContext
+	@PersistenceContext(unitName = "hello")
     private EntityManager em;
 
     // Create a post
@@ -33,7 +33,7 @@ public class PostService {
         Post post = em.find(Post.class, postId);
         if (post == null)
             throw new IllegalArgumentException("Post not found.");
-        if (!post.getUser().equals(editor))
+        if (post.getUser().getId()!=editor.getId())
             throw new SecurityException("You can only edit your own post.");
         post.setContent(content);
         post.setImageUrl(imageUrl);
@@ -75,12 +75,13 @@ public class PostService {
             throw new IllegalArgumentException("Post not found.");
         // Check for existing like
         Long count = em.createQuery(
-            "SELECT COUNT(l) FROM Like l WHERE l.post = :post AND l.user = :user", Long.class
+            "SELECT COUNT(l) FROM PostsLike l WHERE l.post = :post AND l.user = :user",Long.class
         ).setParameter("post", post)
          .setParameter("user", user)
          .getSingleResult();
+        
         if (count > 0) throw new IllegalStateException("Already liked.");
-        Like like = new Like();
+        PostsLike like = new PostsLike();
         like.setUser(user);
         like.setPost(post);
         em.persist(like);
@@ -100,13 +101,13 @@ public class PostService {
 
     // Get all comments for a post
     public List<Comment> getCommentsForPost(int postId) {
-        return em.createQuery("SELECT c FROM Comment c WHERE c.post.id = :postId ORDER BY c.id ASC", Comment.class)
+        return em.createQuery("SELECT c FROM Comment c WHERE c.post.id = :postId", Comment.class)
             .setParameter("postId", postId)
             .getResultList();
     }
 
     // Get a post by ID
     public Post find(int postId) {
-        return em.find(Post.class, postId);
+        return em.find(Post.class,postId);
     }
 }

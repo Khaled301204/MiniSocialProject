@@ -7,16 +7,19 @@ import entities.Comment;
 import entities.Post;
 import entities.User;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
-import javax.websocket.server.PathParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
@@ -41,24 +44,39 @@ public class PostController {
         if (user == null)
             return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
         Post post = postService.createPost(user, postInput.getContent(), postInput.getImageUrl());
-        return Response.ok(post).build();
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("content", post.getContent());
+        map.put("imageURL", post.getImageUrl());
+        return Response.ok(map).build();
     }
 
     @GET
-    @Path("/{id}")
-    public Response getPostById(@PathParam("id") int id) {
+    @Path("/getPost/{id}")
+    public Map<String, Object> getPostById(@PathParam("id") int id) {
         Post post = postService.find(id);
-        if (post == null)
-            return Response.status(Response.Status.NOT_FOUND).build();
-        return Response.ok(post).build();
+        if (post == null) return null;
+        Map<String, Object> map = new HashMap<>();
+        map.put("content", post.getContent());
+        map.put("imageURL", post.getImageUrl());
+        return map;
     }
 
     @GET
     @Path("/feed")
-    public List<Post> getFeed(@QueryParam("userId") int userId) {
+    public List<Map<String, Object>> getFeed(@QueryParam("userId") int userId) {
         User user = userService.getUserById(userId);
         if (user == null) return List.of();
-        return postService.getFeed(user);
+
+        List<Post> posts = postService.getFeed(user);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Post post : posts) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("content", post.getContent());
+            map.put("imageURL", post.getImageUrl());
+            result.add(map);
+        }
+        return result;
     }
 
     @PUT
@@ -105,7 +123,7 @@ public class PostController {
 
     @POST
     @Path("/{postId}/comment")
-    public Response commentPost(@PathParam("postId") int postId, @QueryParam("userId") int userId, @QueryParam("content") String content) {
+    public Response commentPost(@PathParam("postId") int postId, @QueryParam("userId") int userId, String content) {
         User user = userService.getUserById(userId);
         if (user == null)
             return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();

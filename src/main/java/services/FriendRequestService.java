@@ -1,7 +1,9 @@
 package services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -13,7 +15,7 @@ import entities.User;
 
 @Stateless
 public class FriendRequestService {
-	@PersistenceContext
+	@PersistenceContext(unitName = "hello")
     private EntityManager em;
 
     // Send a friend request
@@ -48,7 +50,7 @@ public class FriendRequestService {
     public void acceptRequest(int requestId, User actingUser) {
         FriendRequest fr = em.find(FriendRequest.class, requestId);
         if (fr == null) throw new IllegalArgumentException("Request not found.");
-        if (!fr.getReceiver().equals(actingUser))
+        if (fr.getReceiver().getId()!=actingUser.getId())
             throw new SecurityException("You can't accept requests not sent to you.");
         if (!"PENDING".equals(fr.getStatus()))
             throw new IllegalStateException("Request is not pending.");
@@ -61,7 +63,7 @@ public class FriendRequestService {
     public void rejectRequest(int requestId, User actingUser) {
         FriendRequest fr = em.find(FriendRequest.class, requestId);
         if (fr == null) throw new IllegalArgumentException("Request not found.");
-        if (!fr.getReceiver().equals(actingUser))
+        if (fr.getReceiver().getId()!=actingUser.getId())
             throw new SecurityException("You can't reject requests not sent to you.");
         if (!"PENDING".equals(fr.getStatus()))
             throw new IllegalStateException("Request is not pending.");
@@ -71,8 +73,8 @@ public class FriendRequestService {
     }
 
     // List all friends (where status is ACCEPTED)
-    public List<User> getFriends(User user) {
-        List<User> friends = new ArrayList<>();
+    public List<Map<String, Object>> getFriendsMap(User user) {
+        List<Map<String, Object>> result = new ArrayList<>();
         TypedQuery<FriendRequest> sent = em.createQuery(
             "SELECT fr FROM FriendRequest fr WHERE fr.sender = :user AND fr.status = 'ACCEPTED'", FriendRequest.class
         ).setParameter("user", user);
@@ -81,11 +83,32 @@ public class FriendRequestService {
             "SELECT fr FROM FriendRequest fr WHERE fr.receiver = :user AND fr.status = 'ACCEPTED'", FriendRequest.class
         ).setParameter("user", user);
 
-        for (FriendRequest fr : sent.getResultList())
-            friends.add(fr.getReceiver());
-        for (FriendRequest fr : received.getResultList())
-            friends.add(fr.getSender());
-        return friends;
+        // Process friends where user sent the request (so receiver is the friend)
+        for (FriendRequest fr : sent.getResultList()) {
+            User friend = fr.getReceiver();
+            Map<String, Object> map = new HashMap<>();
+            map.put("friendId", friend.getId());
+            map.put("friendName", friend.getName());
+            result.add(map);
+        }
+
+        // Process friends where user received the request (so sender is the friend)
+        for (FriendRequest fr : received.getResultList()) {
+            User friend = fr.getSender();
+            Map<String, Object> map = new HashMap<>();
+            map.put("friendId", friend.getId());
+            map.put("friendName", friend.getName());
+            result.add(map);
+        }
+        return result;
+    }
+    
+ // Returns all pending friend requests SENT by this user
+    public List<FriendRequest> getPendingSent(User user) {
+        return em.createQuery(
+            "SELECT fr FROM FriendRequest fr WHERE fr.sender = :user AND fr.status = 'PENDING'", FriendRequest.class
+        ).setParameter("user", user)
+         .getResultList();
     }
 
     // List all pending requests the user needs to accept
@@ -96,10 +119,19 @@ public class FriendRequestService {
     }
 
     // List all pending requests the user has sent
-    public List<FriendRequest> getPendingSent(User user) {
-        return em.createQuery(
-            "SELECT fr FROM FriendRequest fr WHERE fr.sender = :user AND fr.status = 'PENDING'", FriendRequest.class
-        ).setParameter("user", user).getResultList();
+    public List<Map<String, Object>> getPendingSentSummary(User user) {
+        List<FriendRequest> requests = getPendingSent(user);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (FriendRequest fr : requests) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", fr.getId());
+            map.put("senderId", fr.getSender().getId());
+            map.put("senderUsername", fr.getSender().getName());
+            map.put("receiverId", fr.getReceiver().getId());
+            map.put("receiverUsername", fr.getReceiver().getName());
+            result.add(map);
+        }
+        return result;
     }
 
     // Find a FriendRequest by id

@@ -17,7 +17,7 @@ public class GroupPost {
     private String imageUrl;
 
     @ManyToOne
-    private Group group;
+    private UserGroup group;
 
     @ManyToOne
     private User user;
@@ -42,11 +42,11 @@ public class GroupPost {
 	   return imageUrl;
     }
     
-    public void setGroup(Group group) {
+    public void setGroup(UserGroup group) {
 	   this.group = group;
     }
    
-    public Group getGroup() {
+    public UserGroup getGroup() {
 	   return group;
     }
     

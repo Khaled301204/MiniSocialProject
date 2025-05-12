@@ -36,7 +36,7 @@ public class Post {
 	private List<Comment> comment = new ArrayList<Comment>();
 	
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-	private List<Like> like = new ArrayList<Like>();
+	private List<PostsLike> like = new ArrayList<PostsLike>();
 	 
 	 public Post() {
 		 

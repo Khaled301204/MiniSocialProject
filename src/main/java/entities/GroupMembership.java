@@ -18,7 +18,7 @@ public class GroupMembership {
     private User user;
 
     @ManyToOne
-    private Group group;
+    private UserGroup group;
 
     @Column
     private String status;
@@ -38,11 +38,11 @@ public class GroupMembership {
     	return user;
     }
     
-    public void setGroup(Group group) {
+    public void setGroup(UserGroup group) {
     	this.group = group;
     }
     
-    public Group getGroup() {
+    public UserGroup getGroup() {
     	return group;
     }
     

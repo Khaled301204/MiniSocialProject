@@ -9,6 +9,10 @@
     	<class>entities.Post</class>
     	<class>entities.Comment</class>
     	<class>entities.Like</class>
+    	<class>entities.GroupPost</class>
+    	<class>entities.GroupMembership</class>
+    	<class>entities.Group</class>
+    	<class>entities.FriendRequest</class>
         <properties>
     			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
     			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
