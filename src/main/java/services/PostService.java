@@ -2,7 +2,9 @@ package services;
 
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -11,20 +13,29 @@ import entities.Comment;
 import entities.PostsLike;
 import entities.Post;
 import entities.User;
+import notification.NotificationEvent;
 
 @Stateless
 public class PostService {
-	
+	@EJB
+	private NotificationProducer p;
 	@PersistenceContext(unitName = "hello")
     private EntityManager em;
+	@Inject
+	private UserService userService;
 
-    // Create a post
     public Post createPost(User user, String content, String imageUrl) {
         Post post = new Post();
         post.setUser(user);
         post.setContent(content);
         post.setImageUrl(imageUrl);
         em.persist(post);
+        
+        List<User> friends = userService.getFriends(user);
+        for (User friend : friends) {
+            p.sendNotification(new NotificationEvent("New Post", friend.getId() , friend.getName(), user.getName()+" has posted"));
+
+        }
         return post;
     }
 
@@ -85,6 +96,7 @@ public class PostService {
         like.setUser(user);
         like.setPost(post);
         em.persist(like);
+        p.sendNotification(new NotificationEvent("Liked Post", post.getUser().getId() , post.getUser().getName(), user.getName()+" liked your Post"));
     }
 
     // Comment on a post
@@ -97,6 +109,7 @@ public class PostService {
         comment.setPost(post);
         comment.setContent(content);
         em.persist(comment);
+        p.sendNotification(new NotificationEvent("Comment on Post", post.getUser().getId() , post.getUser().getName(), user.getName()+" Commented : "+content));
     }
 
     // Get all comments for a post

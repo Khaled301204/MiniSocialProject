@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -36,7 +37,7 @@ public class GroupController {
     public Response createGroup(@QueryParam("creatorId") int creatorId, UserGroup groupInput) {
         User creator = userService.getUserById(creatorId);
         if (creator == null) return Response.status(Response.Status.NOT_FOUND).entity("Creator not found").build();
-        UserGroup group = groupService.createGroup(creator, groupInput.getName(), groupInput.getDescription(), groupInput.isOpen());
+        Map<String, Object> group = groupService.createGroup(creator, groupInput.getName(), groupInput.getDescription(), groupInput.isOpen());
         return Response.ok(group).build();
     }
 
@@ -151,5 +152,10 @@ public class GroupController {
     @Path("GetbyId/{groupId}")
     public UserGroup getGroup(@PathParam("groupId")  int groupId) {
     	return groupService.find(groupId);
+    }
+    @GET
+    @Path("GetMembers/{groupId}")
+    public List<Map<String, Object>> getGroupMembers(@PathParam("groupId")  int groupId) {
+    	return groupService.getGroupMembersMap(groupId);
     }
 }

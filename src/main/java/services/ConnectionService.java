@@ -3,6 +3,7 @@ package services;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,6 +13,9 @@ import entities.User;
 
 @Stateless
 public class ConnectionService {
+	
+	@EJB
+	private NotificationProducer p;
 	
 	 @PersistenceContext(unitName = "hello")
 	    private EntityManager em;
@@ -28,6 +32,7 @@ public class ConnectionService {
 	        request.setStatus("PENDING");
 
 	        em.persist(request);
+	        
 	    }
 
 	    public void respondToRequest(int requestId, String response) {

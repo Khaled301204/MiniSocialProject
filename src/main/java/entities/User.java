@@ -12,8 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-//import notification.NotificationEvent;
 
 @Entity
 public class User {
@@ -37,8 +37,8 @@ public class User {
 	private String password;
 	
 	@Column
-	@NotBlank
-	private String role;
+	@NotNull
+	private Role role;
 	
 	@OneToMany(mappedBy = "user")
 	private List<Post> posts= new ArrayList<Post>();
@@ -61,9 +61,7 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<GroupMembership> groupMemberships = new ArrayList<>();
 	
-//	@OneToMany(mappedBy = "user")
-//	private List<NotificationEvent> notifications = new ArrayList<>();
-	
+
 	public User() {
 		
 	}
@@ -94,10 +92,10 @@ public class User {
 	public String getPassword() {
 		return password;
 	}
-	public void setRole(String role) {
+	public void setRole(Role role) {
 		this.role = role;
 	}
-	public String getRole() {
+	public Role getRole() {
 		return role;
 	}
 	public void setSentRequests(List <FriendRequest> sentRequests) {

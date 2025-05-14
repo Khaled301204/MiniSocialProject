@@ -13,17 +13,16 @@ import javax.persistence.TypedQuery;
 
 import entities.FriendRequest;
 import entities.User;
-//import notification.NotificationEvent;
+import notification.NotificationEvent;
 
 @Stateless
 public class FriendRequestService {
 	
-//	@EJB
-//	private NotificationProducer p;
+	@EJB
+	private NotificationProducer p;
 	@PersistenceContext(unitName = "hello")
     private EntityManager em;
 
-    // Send a friend request
     public void sendRequest(User sender, User receiver) {
         if (sender == null || receiver == null) {
             throw new IllegalArgumentException("Sender and receiver must not be null.");
@@ -49,7 +48,7 @@ public class FriendRequestService {
         fr.setReceiver(receiver);
         fr.setStatus("PENDING");
         em.persist(fr);
-//        p.sendNotification(new NotificationEvent("Friend request", receiver , "new Friend request") );
+        p.sendNotification(new NotificationEvent("Friend request", receiver.getId() , receiver.getName(), "New friend request"));
         
     }
 
@@ -64,7 +63,7 @@ public class FriendRequestService {
 
         fr.setStatus("ACCEPTED");
         em.merge(fr);
-    }
+        p.sendNotification(new NotificationEvent("Friend request", actingUser.getId() , actingUser.getName(), "Friend request accepted"));    }
 
     // Reject a pending friend request
     public void rejectRequest(int requestId, User actingUser) {
@@ -110,7 +109,7 @@ public class FriendRequestService {
         return result;
     }
     
- // Returns all pending friend requests SENT by this user
+ // get all pending friend requests SENT by this user
     public List<FriendRequest> getPendingSent(User user) {
         return em.createQuery(
             "SELECT fr FROM FriendRequest fr WHERE fr.sender = :user AND fr.status = 'PENDING'", FriendRequest.class
@@ -118,14 +117,14 @@ public class FriendRequestService {
          .getResultList();
     }
 
-    // List all pending requests the user needs to accept
+    // get all pending requests the user needs to accept
     public List<FriendRequest> getPendingToAccept(User user) {
         return em.createQuery(
             "SELECT fr FROM FriendRequest fr WHERE fr.receiver = :user AND fr.status = 'PENDING'", FriendRequest.class
         ).setParameter("user", user).getResultList();
     }
 
-    // List all pending requests the user has sent
+    // get all pending requests the user has sent
     public List<Map<String, Object>> getPendingSentSummary(User user) {
         List<FriendRequest> requests = getPendingSent(user);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -141,7 +140,6 @@ public class FriendRequestService {
         return result;
     }
 
-    // Find a FriendRequest by id
     public FriendRequest find(int id) {
         return em.find(FriendRequest.class, id);
     }
