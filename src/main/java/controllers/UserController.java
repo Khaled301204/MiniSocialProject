@@ -50,6 +50,7 @@ public class UserController {
     @PUT
     @Path("{id}/update")
     public Response updateUser(@PathParam("id") int id, User userData) {
+    	userService.updateUser(id, userData);
         return Response.ok("user updated").build();
     }
     

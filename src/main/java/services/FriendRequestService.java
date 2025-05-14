@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,9 +13,13 @@ import javax.persistence.TypedQuery;
 
 import entities.FriendRequest;
 import entities.User;
+//import notification.NotificationEvent;
 
 @Stateless
 public class FriendRequestService {
+	
+//	@EJB
+//	private NotificationProducer p;
 	@PersistenceContext(unitName = "hello")
     private EntityManager em;
 
@@ -44,6 +49,8 @@ public class FriendRequestService {
         fr.setReceiver(receiver);
         fr.setStatus("PENDING");
         em.persist(fr);
+//        p.sendNotification(new NotificationEvent("Friend request", receiver , "new Friend request") );
+        
     }
 
     // Accept a pending friend request

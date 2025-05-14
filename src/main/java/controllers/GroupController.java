@@ -139,6 +139,17 @@ public class GroupController {
     @GET
     @Path("/{groupId}/posts")
     public List<GroupPost> getPosts(@PathParam("groupId") int groupId) {
-        return groupService.getPostsForGroup(groupId);
+    		if(groupService.find(groupId)!=null) {
+    			return groupService.getPostsForGroup(groupId);
+    		}
+    		else {
+    			throw new SecurityException("Group doesnt exist");
+    		}
+    }
+    
+    @GET
+    @Path("GetbyId/{groupId}")
+    public UserGroup getGroup(@PathParam("groupId")  int groupId) {
+    	return groupService.find(groupId);
     }
 }

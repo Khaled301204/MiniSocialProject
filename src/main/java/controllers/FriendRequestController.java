@@ -68,7 +68,6 @@ public class FriendRequestController {
         }
     }
 
-    // See all friends for a user
     @GET
     @Path("/{userId}/all")
     public List<Map<String, Object>> friends(@PathParam("userId") int userId) {
@@ -76,7 +75,6 @@ public class FriendRequestController {
         return friendRequestService.getFriendsMap(user);
     }
 
-    // See all pending requests for a user
     @GET
     @Path("/{userId}/pending")
     public List<Map<String, Object>> pendingSent(@PathParam("userId") int userId) {

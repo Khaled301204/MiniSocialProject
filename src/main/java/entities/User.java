@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 
+//import notification.NotificationEvent;
+
 @Entity
 public class User {
 	@Id
@@ -58,6 +60,9 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<GroupMembership> groupMemberships = new ArrayList<>();
+	
+//	@OneToMany(mappedBy = "user")
+//	private List<NotificationEvent> notifications = new ArrayList<>();
 	
 	public User() {
 		
