@@ -76,7 +76,10 @@ public class FriendRequestService {
 
         fr.setStatus("REJECTED");
         em.merge(fr);
+        p.sendNotification(new NotificationEvent("Friend request", actingUser.getId() , actingUser.getName(), "Friend request rejected"));    
+        
     }
+
 
     // List all friends (where status is ACCEPTED)
     public List<Map<String, Object>> getFriendsMap(User user) {

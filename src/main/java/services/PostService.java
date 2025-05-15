@@ -79,7 +79,6 @@ public class PostService {
         return feedQuery.getResultList();
     }
 
-    // Like a post (idempotent)
     public void likePost(User user, int postId) {
         Post post = em.find(Post.class, postId);
         if (post == null)
@@ -99,7 +98,6 @@ public class PostService {
         p.sendNotification(new NotificationEvent("Liked Post", post.getUser().getId() , post.getUser().getName(), user.getName()+" liked your Post"));
     }
 
-    // Comment on a post
     public void addComment(User user, int postId, String content) {
         Post post = em.find(Post.class, postId);
         if (post == null)
@@ -112,7 +110,6 @@ public class PostService {
         p.sendNotification(new NotificationEvent("Comment on Post", post.getUser().getId() , post.getUser().getName(), user.getName()+" Commented : "+content));
     }
 
-    // Get all comments for a post
     public List<Comment> getCommentsForPost(int postId) {
         return em.createQuery("SELECT c FROM Comment c WHERE c.post.id = :postId", Comment.class)
             .setParameter("postId", postId)
