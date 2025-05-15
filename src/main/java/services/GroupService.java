@@ -70,6 +70,7 @@ public class GroupService {
         membership.setGroup(group);
         membership.setUser(user);
         if (group.isOpen()) {
+        	em.persist(membership);
         	List<User> members = getGroupMembers(group.getId());
             for (User member : members) {
                 p.sendNotification(new NotificationEvent("join group", member.getId() , member.getName()," has joined : "+group.getName()));
@@ -79,11 +80,10 @@ public class GroupService {
         } else {
             membership.setStatus("PENDING");
             membership.setRole("MEMBER");
+            em.persist(membership);
         }
-        em.persist(membership);
     }
 
-    // Approve membership request (by admin)
     public void approveMembership(int membershipId, User admin) {
         GroupMembership membership = em.find(GroupMembership.class, membershipId);
         if (membership == null)
@@ -99,8 +99,18 @@ public class GroupService {
             p.sendNotification(new NotificationEvent("join group", member.getId() , member.getName(),membership.getUser().getName()+" has joined : "+group.getName()));
         }
     }
+    
+    public void rejectMembership(int membershipId, User admin) {
+        GroupMembership membership = em.find(GroupMembership.class, membershipId);
+        if (membership == null)
+            throw new IllegalArgumentException("Membership not found.");
+        UserGroup group = membership.getGroup();
+        if (group.getAdmin().getId() != admin.getId())
+            throw new SecurityException("Only admin can reject.");
+        em.remove(membership);
+        p.sendNotification(new NotificationEvent("Reject membership",membership.getUser().getId(),membership.getUser().getName(),admin.getName() + " rejected your request to join " + group.getName()));
+    }
 
-    // Remove a member from group (by admin)
     public void removeUserFromGroup(int groupId, int userId, User admin) {
         UserGroup group = em.find(UserGroup.class, groupId);
         if (group == null)
@@ -115,7 +125,7 @@ public class GroupService {
         if (result.isEmpty())
             throw new IllegalArgumentException("Membership not found.");
         em.remove(result.get(0));
-        p.sendNotification(new NotificationEvent("remove member", query.getSingleResult().getUser().getId() , query.getSingleResult().getUser().getName(), admin.getName()+" removed you from group : "+group.getName()));
+//        p.sendNotification(new NotificationEvent("remove member", query.getSingleResult().getUser().getId() , query.getSingleResult().getUser().getName(), admin.getName()+" removed you from group : "+group.getName()));
 
     }
     

@@ -57,6 +57,7 @@ public class PostController {
         Post post = postService.find(id);
         if (post == null) return null;
         Map<String, Object> map = new HashMap<>();
+        map.put("username", post.getUser().getName());
         map.put("content", post.getContent());
         map.put("imageURL", post.getImageUrl());
         return map;
@@ -137,7 +138,7 @@ public class PostController {
 
     @GET
     @Path("/{postId}/comments")
-    public List<Comment> getComments(@PathParam("postId") int postId) {
-        return postService.getCommentsForPost(postId);
+    public List<Map<String, Object>> getComments(@PathParam("postId") int postId) {
+        return postService.getCommentsForPostMapped(postId);
     }
 }

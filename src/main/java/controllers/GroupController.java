@@ -95,6 +95,21 @@ public class GroupController {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
+    
+    @POST
+    @Path("/{groupId}/reject")
+    public Response rejectMembership(@PathParam("groupId") int groupId,@QueryParam("adminId") int adminId,@QueryParam("membershipId") int membershipId) {
+        User admin = userService.getUserById(adminId);
+        if (admin == null) return Response.status(Response.Status.NOT_FOUND).entity("Admin not found").build();
+        try {
+            groupService.rejectMembership(membershipId, admin);
+            return Response.ok().build();
+        } catch (SecurityException se) {
+            return Response.status(Response.Status.FORBIDDEN).entity(se.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
 
     @POST
     @Path("/{groupId}/promote")
@@ -136,7 +151,6 @@ public class GroupController {
         }
     }
 
-    // Extra: Get posts in group
     @GET
     @Path("/{groupId}/posts")
     public List<GroupPost> getPosts(@PathParam("groupId") int groupId) {

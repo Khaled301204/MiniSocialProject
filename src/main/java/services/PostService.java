@@ -1,6 +1,9 @@
 package services;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -56,7 +59,7 @@ public class PostService {
         Post post = em.find(Post.class, postId);
         if (post == null)
             throw new IllegalArgumentException("Post not found.");
-        if (!post.getUser().equals(editor))
+        if (post.getUser().getId()!=editor.getId())
             throw new SecurityException("You can only delete your own post.");
         em.remove(post);
     }
@@ -110,10 +113,21 @@ public class PostService {
         p.sendNotification(new NotificationEvent("Comment on Post", post.getUser().getId() , post.getUser().getName(), user.getName()+" Commented : "+content));
     }
 
-    public List<Comment> getCommentsForPost(int postId) {
-        return em.createQuery("SELECT c FROM Comment c WHERE c.post.id = :postId", Comment.class)
+    public List<Map<String, Object>> getCommentsForPostMapped(int postId) {
+        List<Comment> comments = em.createQuery(
+            "SELECT c FROM Comment c WHERE c.post.id = :postId", Comment.class)
             .setParameter("postId", postId)
             .getResultList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Comment comment : comments) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("commentId", comment.getId());
+            map.put("content", comment.getContent());
+            map.put("username", comment.getUser().getName());
+            result.add(map);
+        }
+        return result;
     }
 
     // Get a post by ID

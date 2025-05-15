@@ -48,7 +48,7 @@ public class FriendRequestService {
         fr.setReceiver(receiver);
         fr.setStatus("PENDING");
         em.persist(fr);
-        p.sendNotification(new NotificationEvent("Friend request", receiver.getId() , receiver.getName(), "New friend request"));
+        p.sendNotification(new NotificationEvent("Friend request", receiver.getId() , receiver.getName(),sender.getName()+ " Sent you a friend request"));
         
     }
 
@@ -63,7 +63,7 @@ public class FriendRequestService {
 
         fr.setStatus("ACCEPTED");
         em.merge(fr);
-        p.sendNotification(new NotificationEvent("Friend request", actingUser.getId() , actingUser.getName(), "Friend request accepted"));    }
+        p.sendNotification(new NotificationEvent("Friend request", actingUser.getId() , actingUser.getName(), " Friend request accepted"));    }
 
     // Reject a pending friend request
     public void rejectRequest(int requestId, User actingUser) {
@@ -76,7 +76,7 @@ public class FriendRequestService {
 
         fr.setStatus("REJECTED");
         em.merge(fr);
-        p.sendNotification(new NotificationEvent("Friend request", actingUser.getId() , actingUser.getName(), "Friend request rejected"));    
+        p.sendNotification(new NotificationEvent("Friend request", actingUser.getId() , actingUser.getName(), " Friend request rejected"));    
         
     }
 

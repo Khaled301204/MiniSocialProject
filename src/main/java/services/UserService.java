@@ -93,6 +93,7 @@ public class UserService {
         user.setEmail(userData.getEmail());
         user.setName(userData.getName());
         user.setPassword(userData.getPassword());
+        user.setBio(userData.getBio());
         user.setRole(userData.getRole());
         return em.merge(user);
     }
